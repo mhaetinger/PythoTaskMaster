@@ -44,13 +44,12 @@ import curses
 
 def timer_print(tempo):
     timer_rodando = True
-    for minutes in reversed(range(1, tempo+1)):
+    for minutes in reversed(range(0, tempo)):
         for seg in reversed(range(0, 60)):
             yx = curses.getsyx()
             x = yx[1]
             y = yx[0]
             screen.addstr(0,0, f"{minutes}:{seg}")
-            # screen.addstr(0,0, f"{x}:{y}")
             screen.move(y,x)
             screen.refresh()
             time.sleep(1)
