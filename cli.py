@@ -1,6 +1,5 @@
 import time
 import threading
-import sys
 import curses
 # def my_start_countdown(tempo):
 #     for minutes in reversed(range(0, tempo)):
@@ -48,8 +47,8 @@ def timer_print(tempo):
     for minutes in reversed(range(0, tempo)):
         for seg in reversed(range(0, 60)):
             screen.addstr(0,0, f"{minutes}:{seg}")
+            screen.move(last_x,3)
             screen.refresh()
-            screen.move(1,last_y)
             time.sleep(1)
 
 timer_rodando = False
