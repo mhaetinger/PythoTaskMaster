@@ -44,15 +44,17 @@ import curses
 
 def timer_print(tempo):
     timer_rodando = True
-    for minutes in reversed(range(0, tempo)):
-        # for seg in reversed(range(0, 60)):
-        screen.addstr(0,0, f"{minutes}")
-            # if last_y>3:
-                # screen.move(last_x,last_y)    
-            # else:
-        screen.move(last_x,3)
-        screen.refresh()
-        time.sleep(60)
+    for minutes in reversed(range(1, tempo+1)):
+        for seg in reversed(range(0, 60)):
+            yx = curses.getsyx()
+            x = yx[1]
+            y = yx[0]
+            screen.addstr(0,0, f"{minutes}:{seg}")
+            # screen.addstr(0,0, f"{x}:{y}")
+            screen.move(y,x)
+            screen.refresh()
+            time.sleep(1)
+    print("Acabou o tempo!")
 
 timer_rodando = False
 last_y = 0
@@ -66,7 +68,7 @@ while True:
         screen.addstr(last_x,0,">>")
         screen.clrtoeol()
         inputted_value = screen.getstr(last_x,3).decode('utf-8').strip()
-        last_y = len(inputted_value)-1
+        last_y = 3
         last_x = last_x+1
         if inputted_value == 'sair':
             break
