@@ -45,11 +45,14 @@ import curses
 def timer_print(tempo):
     timer_rodando = True
     for minutes in reversed(range(0, tempo)):
-        for seg in reversed(range(0, 60)):
-            screen.addstr(0,0, f"{minutes}:{seg}")
-            screen.move(last_x,3)
-            screen.refresh()
-            time.sleep(1)
+        # for seg in reversed(range(0, 60)):
+        screen.addstr(0,0, f"{minutes}")
+            # if last_y>3:
+                # screen.move(last_x,last_y)    
+            # else:
+        screen.move(last_x,3)
+        screen.refresh()
+        time.sleep(60)
 
 timer_rodando = False
 last_y = 0
@@ -59,8 +62,6 @@ curses.curs_set(1)
 screen.clear()
 while True:
     timer_rodando = False
-    screen.addstr(1,0,"Digite algo")
-    screen.refresh()
     while True:
         screen.addstr(last_x,0,">>")
         screen.clrtoeol()
