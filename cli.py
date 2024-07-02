@@ -1,14 +1,14 @@
 import time
 import threading
-
-
-def my_start_countdown(tempo):
-    for minutes in reversed(range(0, tempo)):
-        for seg in reversed(range(0, 60)):
-            print(f"\x1b[1;2f{minutes}:{seg} ", end="\r", flush=True)
-            print("\x1b[3;2f")
-            time.sleep(1)
-    print("Time's up!")
+import sys
+import curses
+# def my_start_countdown(tempo):
+#     for minutes in reversed(range(0, tempo)):
+#         for seg in reversed(range(0, 60)):
+#             print(f"\x1b[1;2f{minutes}:{seg} ", end="\r", flush=True)
+#             print("\x1b[3;2f")
+#             time.sleep(1)
+#     print("Time's up!")
 
 
 # while True:
@@ -31,16 +31,45 @@ def my_start_countdown(tempo):
 #  toda vez que acontecer uma repetição do loop, jogar o cursor pra linha certa
 
 
-while True:
-    inputted_value = str(input("Esperando input:"))
-    comandos = inputted_value.split()
-    if comandos[0] != "timer":
-        next
-    tempo = int(comandos[1])
+# while True:
+#     inputted_value = str(input("Esperando input:"))
+#     comandos = inputted_value.split()
+#     if comandos[0] != "timer":
+#         next
+#     tempo = int(comandos[1])
+#     for minutes in reversed(range(0, tempo)):
+#         for seg in reversed(range(0, 60)):
+#             print(f"{minutes}:{seg} ", end="\r", flush=True)
+#             time.sleep(1)
+#     print("Time's up!")
+
+def timer_print(tempo):
+    timer_rodando = True
     for minutes in reversed(range(0, tempo)):
         for seg in reversed(range(0, 60)):
-            print(f"{minutes}:{seg} ", end="\r", flush=True)
+            screen.addstr(0,0, f"{minutes}:{seg}")
+            screen.refresh()
             time.sleep(1)
-    print("Time's up!")
 
+timer_rodando = False
+
+screen = curses.initscr()
+curses.curs_set(1)
+screen.clear()
+while True:
+    timer_rodando = False
+    screen.addstr(1,0,"Digite algo")
+    screen.refresh()
+    screen.addstr(1,0,">>")
+    while True:
+        screen.clrtoeol()
+        inputted_value = screen.getstr(2,3).decode('utf-8').strip()
+        if inputted_value == 'sair':
+            break
+        else:
+            comandos = inputted_value.split()
+            if comandos[0] != "timer":
+                next
+            tempo = int(comandos[1])
+            threading.Thread(target = timer_print, args=[tempo], daemon=True).start()
     
