@@ -2,12 +2,7 @@ import time
 import threading
 import curses
 
-def log(txt):
-    logs.write(txt)
-    logs.flush()
-
 def timer_print(tempo):
-    timer_rodando = True
     x = 0
     y = 0
     for minutes in reversed(range(0, tempo)):
@@ -22,25 +17,20 @@ def timer_print(tempo):
     screen.addstr(y,x, "O tempo acabou!")
     screen.refresh()
 
-def handle_resize():
-    while(True):
-        key = screen.getch()
-        log(key)
-        if(key=="KEY_RESIZE"):
-            h,w = screen.getmaxyx()
-            screen.resize(h,w)
-            log(f"resize detected! {h},{w}")    
-                
-logs = open("cli_logs.txt", "w")
-timer_rodando = False
+# def handle_resize():
+#    while True:
+#        com = screen.getch()
+#        if com == curses.KEY_RESIZE:
+#            screen.resize() 
+      
 last_y = 0
 last_x = 1
 screen = curses.initscr()
 curses.curs_set(1)
+screen.keypad(True)
 screen.clear()
-threading.Thread(target=handle_resize, daemon=True).start()
+# handle_resize()
 while True:
-    timer_rodando = False
     while True:
         screen.addstr(last_x,0,">>")
         screen.clrtoeol()
