@@ -1,6 +1,6 @@
-import time
-import threading
 import curses
+import threading
+import time
 
 
 def timer_print(minutos, segundos):
@@ -82,6 +82,7 @@ while True:
             continue
         if comandos[0] == "timer":
             if input_number == 1:
+                print_missing_args(comandos[0])
                 continue
             # testar se não precisa de um try catch aqui
             tempo = int(comandos[1])
@@ -95,11 +96,15 @@ while True:
                 print_missing_args(comandos[2])
                 continue
             if comandos[3] == "tasks":
-                # checar se o for em uma lista vazia da exception
-                if input_number == 4:
+                raw_args = inputted_value.split("tasks")
+                if len(raw_args) == 0:
                     print_missing_args(comandos[3])
                     continue
-                for _ in comandos[4].split(","):
+                task_args = raw_args[1].split(",")
+                if len(task_args)==0:
+                    continue
+                # checar se o for em uma lista vazia da exception
+                for _ in task_args:
                     tasks.append(_.strip())
                 run_clock_thread(tempo)
             else:
