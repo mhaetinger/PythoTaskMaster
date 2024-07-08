@@ -51,6 +51,18 @@ def run_clock_thread(minutos, segundos=60):
     global_clock_thread.start()
 
 
+def split_not_empty(text, splitter=None):
+    splitted = []
+    for _ in text.split(splitter):
+        if _.strip() != "":
+            splitted.append(_.strip())
+    return splitted
+
+
+def is_empty(text):
+    return text.strip() == ""
+
+
 # def handle_resize():
 #    while True:
 #        com = screen.getch()
@@ -76,7 +88,7 @@ while True:
         inputted_value = screen.getstr(last_x, 3).decode("utf-8").strip()
         last_x = last_x + 1
         last_y = 3
-        comandos = inputted_value.split()
+        comandos = split_not_empty(inputted_value)
         input_number = len(comandos)
         if input_number == 0:
             continue
@@ -96,12 +108,12 @@ while True:
                 print_missing_args(comandos[2])
                 continue
             if comandos[3] == "tasks":
-                raw_args = inputted_value.split("tasks")
-                if len(raw_args) == 0:
+                raw_args = inputted_value.split("tasks")[1]
+                if is_empty(raw_args):
                     print_missing_args(comandos[3])
                     continue
-                task_args = raw_args[1].split(",")
-                if len(task_args)==0:
+                task_args = split_not_empty(raw_args, ",")
+                if len(task_args) == 0:
                     continue
                 # checar se o for em uma lista vazia da exception
                 for _ in task_args:
