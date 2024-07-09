@@ -2,7 +2,6 @@ import curses
 import threading
 import time
 
-
 def timer_print(minutos, segundos):
     x = 0
     y = 0
@@ -21,7 +20,7 @@ def timer_print(minutos, segundos):
             screen.move(y, x)
             screen.refresh()
             time.sleep(1)
-    screen.addstr(y, x, "O tempo acabou!")
+    print_on_screen("O tempo acabou!")
     screen.refresh()
 
 
@@ -62,6 +61,17 @@ def split_not_empty(text, splitter=None):
 def is_empty(text):
     return text.strip() == ""
 
+def readInput():
+    global last_x
+    global last_y
+    screen.refresh()
+    screen.addstr(last_x, 0, ">>")
+    screen.clrtoeol()
+    inputted_value = screen.getstr(last_x, 3).decode("utf-8").strip()
+    last_x = last_x + 1
+    last_y = 3
+    return inputted_value
+
 
 # def handle_resize():
 #    while True:
@@ -81,12 +91,7 @@ curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
 while True:
-    screen.refresh()
-    screen.addstr(last_x, 0, ">>")
-    screen.clrtoeol()
-    inputted_value = screen.getstr(last_x, 3).decode("utf-8").strip()
-    last_x = last_x + 1
-    last_y = 3
+    inputted_value = readInput()
     comandos = split_not_empty(inputted_value)
     input_number = len(comandos)
     if input_number == 0:
