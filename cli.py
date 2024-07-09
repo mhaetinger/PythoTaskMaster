@@ -1,4 +1,5 @@
 import curses
+import signal
 import threading
 import time
 
@@ -63,11 +64,15 @@ def is_empty(text):
     return text.strip() == ""
 
 
-# def handle_resize():
-#    while True:
-#        com = screen.getch()
-#        if com == curses.KEY_RESIZE:
-#            screen.resize()
+def handle_resize():
+    counter = 0
+    while True:
+        time.sleep(1)
+        getch_result = screen.getch()
+        if getch_result == curses.KEY_RESIZE:
+            counter += 1
+            print_on_screen(f"resize captured! {counter}")
+
 
 last_y = 0
 last_x = 1
@@ -80,6 +85,8 @@ screen = curses.initscr()
 curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
+handle_resize()
+threading.Thread(handle_resize(), daemon=True).start()
 while True:
     screen.refresh()
     screen.addstr(last_x, 0, ">>")
