@@ -1,17 +1,17 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog, Frame, filedialog
-import csv
+from tkinter import ttk, messagebox, simpledialog, Frame, filedialog, colorchooser
+import tkinter.font as tkFont
 
 class TaskMaster:
 
     def __init__(self):
-
-        self.root = tk.Tk() # iniciar a interface
-        self.listaTarefas = []
-        self.tarefaSelecionada = None # em qual tarefa esta marcada
-        self.rodando = False  # se o programa esta rodando
-        self.tela() # executa a tela
-        self.root.mainloop() # roda loop principal
+        self.root = tk.Tk()  # iniciar a interface
+        self.listaTarefas = []  # lista de tarefas inicializada
+        self.tarefaSelecionada = None  # em qual tarefa esta marcada
+        self.pomodoroAtivo = tk.BooleanVar()
+        self.rodando = False
+        self.tela()
+        self.root.mainloop()  # roda loop principal
 
     # função telas
     def tela(self):
@@ -21,30 +21,41 @@ class TaskMaster:
         self.root.resizable(True, True)
         self.root.maxsize(800, 900)
         self.root.minsize(500, 700)
-        self.framesTela() # executa os frames
+        self.framesTela()  # executa os função frames
+
+    def fontes(self):
+        self.fonteTitulo = tkFont.Font(family='MS Sans Serif', size=36, weight='bold')
+        self.fonteCronometro = tkFont.Font(family='MS Sans Serif', size=55, weight='bold')
+        self.fonteTituloPequeno = tkFont.Font(family='MS Sans Serif', size=16, weight='bold')
+        self.fonteBotoes = tkFont.Font(family='MS Sans Serif', size=14, weight='bold')
 
     # função para os frames
     def framesTela(self):
+        self.fontes()
+
+        self.style = ttk.Style()
+        self.style.configure("Custom.TCheckbutton", background='#1e3743', foreground='white', font=self.fonteBotoes)
+        self.style.map("Custom.TCheckbutton", background=[('active', '#1e3743'), ('selected', '#1e3743')])
 
         # frame encarregado pela frame do timer
         self.frameTimer = Frame(self.root, bg='#1e3743')
         self.frameTimer.place(relx=0.5, rely=0.05, anchor='n', relheight=0.25, relwidth=1)
-        self.timer()
+        self.timer()  # puxa função timer
 
-        # frame para os botões das tarefass
+        # frame para os botões das tarefas
         self.frameButtons = Frame(self.root, bg='#1e3743')
-        self.frameButtons.place(relx=0.5, rely=0.35, anchor='n', relheight=0.2, relwidth=1)
-        self.botoesTarefa()
+        self.frameButtons.place(relx=0.5, rely=0.30, anchor='n', relheight=0.2, relwidth=1)
+        self.botoesTarefa()  # puxa função de botões
 
-        # frame para as tarefass
+        # frame para as tarefas
         self.frameTarefas = Frame(self.root, bg='#1e3743', bd=4, relief='ridge')
         self.frameTarefas.place(relx=0.5, rely=0.5, anchor='n', relheight=0.45, relwidth=0.9)
-        self.tarefas()
+        self.tarefas()  # puxa função tarefas
 
-    #função das tarefas
+    # função frame das tarefas
     def tarefas(self):
-
-        self.labelTarefas = tk.Label(self.frameTarefas, text="Lista de tarefas", font=("Helvetica", 16), bg='#1e3743', fg='white')
+        # nome no frame
+        self.labelTarefas = tk.Label(self.frameTarefas, text="Lista de tarefas", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
         self.labelTarefas.pack(pady=10)
 
         self.listaTarefasFrame = Frame(self.frameTarefas, bg='#1e3743')
@@ -54,43 +65,46 @@ class TaskMaster:
         # atualiza a lista de tarefas
         self.atualizarListaTarefas()
 
-    #função dos botoes de tarefas
+    # função dos botoes de tarefas
     def botoesTarefa(self):
-        #texto tarefas
-        self.labelTarefas = tk.Label(self.frameButtons, text="Tarefas", font=("Helvetica", 24), bg='#1e3743', fg='white')
-        self.labelTarefas.place(relx=0.5, rely=0.1, anchor='center', relheight=1, relwidth=1)
+        self.checkboxPomodoro = ttk.Checkbutton(self.frameButtons, text="Pomodoro", variable=self.pomodoroAtivo, style="Custom.TCheckbutton")
+        self.checkboxPomodoro.place(relx=0.2, rely=0.3)
 
-        self.botaoAdd = tk.Button(self.frameButtons, text="Add", command=self.addTarefa, font=("Helvetica", 14), bg='#3b5998', fg='white', padx=10, pady=10)
-        self.botaoAdd.place(relx=0.3, rely=0.6, anchor='center', relheight=0.4, relwidth=0.2)
+        self.progressoBarra = ttk.Progressbar(self.frameButtons, orient="horizontal", length=300, mode="determinate", maximum=60)
+        self.progressoBarra.place(relx=0.2, rely=0.0)
 
-        self.botaoEdit = tk.Button(self.frameButtons, text="Edit", command=self.editTarefa, font=("Helvetica", 14), bg='#3b5998', fg='white', padx=10, pady=10)
-        self.botaoEdit.place(relx=0.5, rely=0.6, anchor='center', relheight=0.4, relwidth=0.2)
+        self.botaoAdd = tk.Button(self.frameButtons, text="Add", command=self.addTarefa, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
+        self.botaoAdd.place(relx=0.2, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
 
-        self.botaoDel = tk.Button(self.frameButtons, text="Del", command=self.delTarefa, font=("Helvetica", 14), bg='#3b5998', fg='white', padx=10, pady=10)
-        self.botaoDel.place(relx=0.7, rely=0.6, anchor='center', relheight=0.4, relwidth=0.2)
+        self.botaoEdit = tk.Button(self.frameButtons, text="Edit", command=self.editTarefa, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
+        self.botaoEdit.place(relx=0.4, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
+
+        self.botaoDel = tk.Button(self.frameButtons, text="Del", command=self.delTarefa, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
+        self.botaoDel.place(relx=0.6, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
+
+        self.botaoCor = tk.Button(self.frameButtons, text="Cor", command=self.definirCor, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
+        self.botaoCor.place(relx=0.8, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
 
     # atualiza lista de tarefa
     def atualizarListaTarefas(self):
-
         # cria uma lista de Widget filhos
         self.listaInterface = []
-
 
         for tarefas in self.listaTarefasFrame.winfo_children():
             tarefas.destroy()
 
-        for i, (tarefa, lista) in enumerate(self.listaTarefas):
+        for i, (tarefa, lista, cor) in enumerate(self.listaTarefas):
             frame = Frame(self.listaTarefasFrame, bg='#1e3743')
             frame.pack(fill=tk.X, padx=10, pady=2)
 
-            chk = tk.Checkbutton(frame, variable=lista, font=("Helvetica", 14), bg='#1e3743', fg='white', selectcolor='#4CAF50', anchor='w')
+            chk = ttk.Checkbutton(frame, variable=lista, style="Custom.TCheckbutton")
             chk.pack(side=tk.LEFT)
 
-            tarefas_label = tk.Label(frame, text=tarefa, font=("Helvetica", 14), bg='#1e3743', fg='white', anchor='w')
-            tarefas_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            tarefas_label.bind("<Button-1>", lambda e, idx=i: self.marcarTarefa(idx))
+            camadaTarefas = tk.Label(frame, text=tarefa, font=self.fonteBotoes, bg='#1e3743', fg=cor, anchor='w')
+            camadaTarefas.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            camadaTarefas.bind("<Button-1>", lambda e, idx=i: self.marcarTarefa(idx))
 
-            self.listaInterface.append((chk, tarefas_label))
+            self.listaInterface.append((chk, camadaTarefas))
 
         self.atualizarListaTarefasMarcador()
 
@@ -98,15 +112,16 @@ class TaskMaster:
         tarefas = simpledialog.askstring("Adicionar Tarefa", "Qual é a tarefa?")
         if tarefas:
             var = tk.IntVar()
-            self.listaTarefas.append((tarefas, var))
+            cor = 'white'
+            self.listaTarefas.append((tarefas, var, cor))
             self.atualizarListaTarefas()
 
     def editTarefa(self):
         if self.tarefaSelecionada is not None:
-            selected_tarefas_text, var = self.listaTarefas[self.tarefaSelecionada]
-            textoNovaTarefa = simpledialog.askstring("Editar Tarefa", "Edite a tarefa:", initialvalue=selected_tarefas_text)
+            textoTarefaSelecionada, var, cor = self.listaTarefas[self.tarefaSelecionada]
+            textoNovaTarefa = simpledialog.askstring("Editar Tarefa", "Edite a tarefa:", initialvalue=textoTarefaSelecionada)
             if textoNovaTarefa:
-                self.listaTarefas[self.tarefaSelecionada] = (textoNovaTarefa, var)
+                self.listaTarefas[self.tarefaSelecionada] = (textoNovaTarefa, var, cor)
                 self.atualizarListaTarefas()
         else:
             messagebox.showerror("Erro", "Por favor, selecione uma tarefa para editar.")
@@ -134,15 +149,31 @@ class TaskMaster:
             else:
                 lbl.config(bg='#1e3743')
 
+    def definirCor(self):
+        if self.tarefaSelecionada is not None:
+            cor = colorchooser.askcolor(title="Escolha uma cor")[1]
+            if cor:
+                textoTarefaSelecionada, var, _ = self.listaTarefas[self.tarefaSelecionada]
+                self.listaTarefas[self.tarefaSelecionada] = (textoTarefaSelecionada, var, cor)
+                self.atualizarListaTarefas()
+        else:
+            messagebox.showerror("Erro", "Por favor, selecione uma tarefa para definir a cor.")
+
+    # função de finalizar cronometro
     def finalizarCronometro(self):
+        if self.tempoRestante.get() == 0 and self.rodando == False:
+            messagebox.showerror("Erro", "Inicie o crônometro novamente.")
+            return
+
         self.rodando = False
-        pontos = self.calcularPontos()
-        self.gerarRelatorio(pontos)
-        messagebox.showinfo("Pontuação Final", f"Sua pontuação final é: {pontos} pontos")
+        # função para gerar pontuação
+        # função gerar relatorios a ser implementada
+        messagebox.showinfo("Pontuação Final", f"Sua pontuação final é: (variavel com pontos) pontos")
         self.tempoRestante.set(0)
         self.entradaTimer.config(state='normal')
         self.listaTarefas = []
         self.atualizarListaTarefas()
+        self.limpar()
 
     def limpar(self):
         self.rodando = False
@@ -151,74 +182,65 @@ class TaskMaster:
         self.listaTarefas = []
         self.atualizarListaTarefas()
         self.atualizarTimerFormato()
-
-    def calcularPontos(self):
-        pontosTarefas = sum(lista.get() for tarefa, lista in self.listaTarefas) * 10
-        minutosRestantes = self.tempoRestante.get() // 60
-        pontosTempo = minutosRestantes * 2
-        return pontosTarefas + pontosTempo
-
-    def gerarRelatorio(self, pontos):
-        tarefasRealizadas = [tarefas for tarefas, lista in self.listaTarefas if lista.get() == 1]
-        tarefasNaoRealizadas = [tarefas for tarefas, lista in self.listaTarefas if lista.get() == 0]
-
-        caminhoArquivo = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")], title="Salvar relatório")
-        if not caminhoArquivo:
-            return
-
-        with open(caminhoArquivo, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Tarefas Realizadas'])
-            for tarefa in tarefasRealizadas:
-                writer.writerow([tarefa])
-            writer.writerow([])
-            writer.writerow(['Tarefas Não Realizadas'])
-            for tarefa in tarefasNaoRealizadas:
-                writer.writerow([tarefa])
-            writer.writerow([])
-            writer.writerow(['Pontuação Total', pontos])
-
-        messagebox.showinfo("Relatório", f"Relatório gerado: {caminhoArquivo}")
-
+        self.progressoBarra["value"] = self.progressoBarra["maximum"] - self.tempoRestante.get()
 
     def timer(self):
-        self.tempoRestante = tk.IntVar(value=60) #recebe o valor em segundos para a variavel tempoRestante
-        self.rodando = False # timer parado
+        self.tempoRestante = tk.IntVar(value=0)  # recebe o valor em segundos para a variavel tempoRestante
+        self.rodando = False  # timer parado
 
-        self.camadaTitulo = tk.Label(self.frameTimer, text="Task Master", font=("Helvetica", 24, 'bold'), bg='#1e3743', fg='white')
+        self.camadaTitulo = tk.Label(self.frameTimer, text="Task Master", font=self.fonteTitulo, bg='#1e3743', fg='white')
         self.camadaTitulo.place(relx=0.5, rely=0.1, anchor='center')
 
-        self.entradaTimer = tk.Entry(self.frameTimer, font=("Helvetica", 55), justify='center', fg='white', bg='#3b4b59', bd=5, relief='sunken', insertbackground='white')
-        self.entradaTimer.insert(0, "01:00")
+        self.entradaTimer = tk.Entry(self.frameTimer, font=self.fonteCronometro, justify='center', fg='white', bg='#3b4b59', bd=5, relief='sunken', insertbackground='white')
+        self.entradaTimer.insert(0, "00:00")
         self.entradaTimer.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.botaoInicar = tk.Button(self.frameTimer, text="Começar", command=self.comecarTimer, font=("Helvetica", 14), bg='#4CAF50', fg='white', padx=10, pady=10)
+        self.botaoInicar = tk.Button(self.frameTimer, text="Começar", command=self.comecarTimer, font=self.fonteBotoes, bg='#4CAF50', fg='white', padx=10, pady=10)
         self.botaoInicar.place(relx=0.2, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
-        self.botaoPausar = tk.Button(self.frameTimer, text="Pausar", command=self.pausarTimer, font=("Helvetica", 14), bg='#FFC107', fg='white', padx=20, pady=10)
+        self.botaoPausar = tk.Button(self.frameTimer, text="Pausar", command=self.pausarTimer, font=self.fonteBotoes, bg='#FFC107', fg='white', padx=20, pady=10)
         self.botaoPausar.place(relx=0.4, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
-        self.botaoLimpar = tk.Button(self.frameTimer, text="Limpar", command=self.limpar, font=("Helvetica", 14), bg='#F44336', fg='white', padx=20, pady=10)
+        self.botaoLimpar = tk.Button(self.frameTimer, text="Limpar", command=self.limpar, font=self.fonteBotoes, bg='#F44336', fg='white', padx=20, pady=10)
         self.botaoLimpar.place(relx=0.6, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
-        self.botaoFinalizar = tk.Button(self.frameTimer, text="Finalizar", command=self.finalizarCronometro, font=("Helvetica", 14), bg='#3b5998', fg='white', padx=20, pady=10)
+        self.botaoFinalizar = tk.Button(self.frameTimer, text="Finalizar", command=self.finalizarCronometro, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=20, pady=10)
         self.botaoFinalizar.place(relx=0.8, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
     def comecarTimer(self):
         if not self.rodando:
-            try:
-                iniciarTimer = self.entradaTimer.get() # se o tempo é maior que zero
-                minutos, segundos = map(int, iniciarTimer.split(":")) #separa o time pelos dois pontos
-                self.tempoRestante.set(minutos * 60 + segundos) # converte o tempo inserido para segundos
-                self.entradaTimer.config(state='disabled', disabledbackground='#3b4b59', disabledforeground='white')
-            except ValueError:
+            iniciarTimer = self.entradaTimer.get()
+            if ":" in iniciarTimer:
+                try:
+                    minutos, segundos = map(int, iniciarTimer.split(":"))
+                    total_segundos = minutos * 60 + segundos
+                    if total_segundos > 0:
+                        self.tempoRestante.set(total_segundos)
+                        self.entradaTimer.config(state='disabled', disabledbackground='#3b4b59', disabledforeground='white')
+                        self.progressoBarra["maximum"] = total_segundos
+                        self.rodando = True
+                        self.atualizarTimer()
+                    else:
+                        messagebox.showerror("Impossível Começar", "O cronômetro está Zerado")
+                except ValueError:
+                    messagebox.showerror("Tempo errado", "Por favor insira no formato Minutos:Segundos.")
+            else:
                 messagebox.showerror("Tempo errado", "Por favor insira no formato Minutos:Segundos.")
-                return
-        self.rodando = True
-        self.atualizarTimer()
+        else:
+            messagebox.showerror("Cronômetro já em execução", "O cronômetro já está rodando")
 
     def pausarTimer(self):
-        self.rodando = False
+        if self.tempoRestante.get() == 0 and not self.rodando:
+            messagebox.showerror("Impossivel Pausar", "O cronômetro está finalizado")
+            return
+
+        if self.rodando:
+            self.rodando = False
+            self.botaoPausar.config(text="Continuar")
+        else:
+            self.rodando = True
+            self.botaoPausar.config(text="Pausar")
+            self.atualizarTimer()
 
     def atualizarTimer(self):
         if self.rodando:
@@ -230,6 +252,7 @@ class TaskMaster:
                 self.entradaTimer.insert(0, formatoTimer)
                 self.entradaTimer.config(state='disabled', disabledbackground='#3b4b59', disabledforeground='white')
                 self.tempoRestante.set(self.tempoRestante.get() - 1)
+                self.progressoBarra["value"] = self.progressoBarra["maximum"] - self.tempoRestante.get()
                 self.root.after(1000, self.atualizarTimer)
             else:
                 self.finalizarCronometro()
