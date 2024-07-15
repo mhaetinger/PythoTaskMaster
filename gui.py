@@ -4,11 +4,14 @@ import tkinter.font as tkFont
 
 class TaskMaster:
 
+    #FUNÇÃO PRINCIPAL
     def __init__(self):
         self.root = tk.Tk()  # iniciar a interface
         self.listaTarefas = []  # lista de tarefas inicializada
         self.tarefaSelecionada = None  # em qual tarefa esta marcada
         self.pomodoroAtivo = tk.BooleanVar()
+        self.intervalos = 0
+        self.tempoIntervalo = 0
         self.rodando = False
         self.tela()
         self.root.mainloop()  # roda loop principal
@@ -23,16 +26,20 @@ class TaskMaster:
         self.root.minsize(500, 700)
         self.framesTela()  # executa os função frames
 
+    #FUNÇÃO PRONTA - configura padrão fontes
     def fontes(self):
         self.fonteTitulo = tkFont.Font(family='MS Sans Serif', size=36, weight='bold')
         self.fonteCronometro = tkFont.Font(family='MS Sans Serif', size=55, weight='bold')
         self.fonteTituloPequeno = tkFont.Font(family='MS Sans Serif', size=16, weight='bold')
         self.fonteBotoes = tkFont.Font(family='MS Sans Serif', size=14, weight='bold')
+        self.fonteBotaoConfiguracao = tkFont.Font(family='MS Sans Serif', size=8, weight='bold')
 
-    # função para os frames
+    #FUNÇÃO FRAMES - EM ANDAMENTO
     def framesTela(self):
-        self.fontes()
 
+        self.fontes() #EXECUTA FUNÇÃO DAS FONTES
+
+        #CONFIGURA PADRÃO DE FUNDO DOS CHECKBUTTON
         self.style = ttk.Style()
         self.style.configure("Custom.TCheckbutton", background='#1e3743', foreground='white', font=self.fonteBotoes)
         self.style.map("Custom.TCheckbutton", background=[('active', '#1e3743'), ('selected', '#1e3743')])
@@ -54,25 +61,46 @@ class TaskMaster:
 
     # função frame das tarefas
     def tarefas(self):
-        # nome no frame
-        self.labelTarefas = tk.Label(self.frameTarefas, text="Lista de tarefas", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
-        self.labelTarefas.pack(pady=10)
 
+        # nome no frame e posição
+        self.camadaTarefas = tk.Label(self.frameTarefas, text="Lista de tarefas", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
+        self.camadaTarefas.pack(pady=10)
+
+        #Cria um frame dentro da lista
         self.listaTarefasFrame = Frame(self.frameTarefas, bg='#1e3743')
         self.listaTarefasFrame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        # desmarca ao clicar no espaço em branco
+
+        # desmarca ao clicar no frame da lista em branco
         self.listaTarefasFrame.bind("<Button-1>", self.desmarcarTarefa)
+
         # atualiza a lista de tarefas
         self.atualizarListaTarefas()
 
+
     # função dos botoes de tarefas
     def botoesTarefa(self):
+
+        #checkbox do pomodoro
         self.checkboxPomodoro = ttk.Checkbutton(self.frameButtons, text="Pomodoro", variable=self.pomodoroAtivo, style="Custom.TCheckbutton")
         self.checkboxPomodoro.place(relx=0.2, rely=0.3)
 
+        #botão de configurar o pomodoro
+        self.botaoConfigPomodoro = tk.Label(self.frameButtons, text="Configurar", font=self.fonteBotaoConfiguracao, bg='#1e3743', fg='GREY', cursor="hand2")
+        self.botaoConfigPomodoro.place(relx=0.3, rely=0.5)
+        self.botaoConfigPomodoro.bind("<Button-1>", self.configurarPomodoro)
+
+        self.camadaTempoPomodoro = tk.Label(self.frameButtons, text="00:00", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
+        self.camadaTempoPomodoro.place(relx=0.6, rely=0.3)
+
+        self.camadaIntervalosPomodoro = tk.Label(self.frameButtons, text="0/0", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
+        self.camadaIntervalosPomodoro.place(relx=0.8, rely=0.3)
+
+        #barra de progresso
         self.progressoBarra = ttk.Progressbar(self.frameButtons, orient="horizontal", length=300, mode="determinate", maximum=60)
         self.progressoBarra.place(relx=0.2, rely=0.0)
 
+
+        #botões
         self.botaoAdd = tk.Button(self.frameButtons, text="Add", command=self.addTarefa, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
         self.botaoAdd.place(relx=0.2, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
 
@@ -85,9 +113,45 @@ class TaskMaster:
         self.botaoCor = tk.Button(self.frameButtons, text="Cor", command=self.definirCor, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=10, pady=10)
         self.botaoCor.place(relx=0.8, rely=0.85, anchor='center', relheight=0.2, relwidth=0.2)
 
+    #EM ANDAMENTO
+    def configurarPomodoro(self, event):
+
+        #configuração janela
+        self.pomodoroJanela = tk.Toplevel(self.root)
+        self.pomodoroJanela.title("Configuração Pomodoro")
+        self.pomodoroJanela.geometry('300x200')
+        self.pomodoroJanela.configure(background='#1e3743')
+
+        self.camadaIntervalos = tk.Label(self.pomodoroJanela, text="N° Intervalos:", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
+        self.camadaIntervalos.pack(pady=5)
+        self.entradaIntervalos = tk.Entry(self.pomodoroJanela, font=self.fonteBotoes)
+        self.entradaIntervalos.pack(pady=5)
+
+        self.camadaTempoIntervalo = tk.Label(self.pomodoroJanela, text="Tempo de intervalo:", font=self.fonteTituloPequeno, bg='#1e3743', fg='white')
+        self.camadaTempoIntervalo.pack(pady=5)
+        self.entradaTempoIntervalo = tk.Entry(self.pomodoroJanela, font=self.fonteBotoes)
+        self.entradaTempoIntervalo.pack(pady=5)
+
+        self.botaoSalvarPomodoro = tk.Button(self.pomodoroJanela, text="Salvar", command=self.salvarPomodoro, font=self.fonteBotoes, bg='#3b5998', fg='white')
+        self.botaoSalvarPomodoro.pack(pady=10)
+
+    #EM ANDAMENTO
+    def salvarPomodoro(self):
+
+        try:
+            self.intervalos = int(self.entradaIntervalos.get())# pega entrada pelo usuario
+            minutos, segundos = map(int, self.entradaTempoIntervalo.get().split(":")) #separa tempo em diferentes variaveis
+            self.tempoIntervalo = minutos * 60 + segundos #ajusta os minutos para segundos
+            self.camadaIntervalosPomodoro.config(text=f"0/{self.intervalos}") # configura como vai aparece na tela
+            self.camadaTempoPomodoro.config(text=f"{minutos:02}:{segundos:02}")
+            self.pomodoroJanela.destroy()
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira valores válidos Minutos:Segundos.")
+
     # atualiza lista de tarefa
     def atualizarListaTarefas(self):
-        # cria uma lista de Widget filhos
+
+
         self.listaInterface = []
 
         for tarefas in self.listaTarefasFrame.winfo_children():
@@ -207,7 +271,9 @@ class TaskMaster:
         self.botaoFinalizar = tk.Button(self.frameTimer, text="Finalizar", command=self.finalizarCronometro, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=20, pady=10)
         self.botaoFinalizar.place(relx=0.8, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
+    #FUNÇÃO PRONTA
     def comecarTimer(self):
+
         if not self.rodando:
             iniciarTimer = self.entradaTimer.get()
             if ":" in iniciarTimer:
@@ -229,6 +295,7 @@ class TaskMaster:
         else:
             messagebox.showerror("Cronômetro já em execução", "O cronômetro já está rodando")
 
+    #FUNÇÃO PRONTA
     def pausarTimer(self):
         if self.tempoRestante.get() == 0 and not self.rodando:
             messagebox.showerror("Impossivel Pausar", "O cronômetro está finalizado")
@@ -242,6 +309,7 @@ class TaskMaster:
             self.botaoPausar.config(text="Pausar")
             self.atualizarTimer()
 
+    #FUNÇÃO PRONTA
     def atualizarTimer(self):
         if self.rodando:
             if self.tempoRestante.get() > 0:
@@ -256,7 +324,7 @@ class TaskMaster:
                 self.root.after(1000, self.atualizarTimer)
             else:
                 self.finalizarCronometro()
-
+    #FUNÇÃO PRONTA
     def atualizarTimerFormato(self):
         minutos, segundos = divmod(self.tempoRestante.get(), 60)
         formatoTimer = f"{minutos:02}:{segundos:02}"
