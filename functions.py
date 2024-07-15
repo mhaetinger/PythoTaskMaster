@@ -2,16 +2,16 @@ import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def armazenar_input(entrada):
-    tempo_str, tasks_str = entrada.split(", ")
-    tempo = int(tempo_str.strip())
-    tasks = [task.strip() for task in tasks_str.split(";")]
-    data_hora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return tempo, tasks, data_hora
-
-def criar_csv(filename='dados_tarefas.csv'):
-    df = pd.DataFrame(columns=['Tempo', 'Task', 'DataHora'])
-    df.to_csv(filename, index=False)
+def salvar_tasks(tasks, tempo, id):
+    data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df = pd.DataFrame({
+        'Task': tasks,
+        'Tempo': [tempo] * len(tasks),
+        'ID': id,
+        'DataHora': [data_hora] * len(tasks)
+    })
+    nome_arquivo = 'tarefas.csv'
+    df.to_csv(nome_arquivo, index=False)
 
 def salvar_no_csv(dados, filename='dados_tarefas.csv'):
     df = pd.DataFrame(dados, columns=['Tempo', 'Task', 'DataHora'])
@@ -57,7 +57,7 @@ def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
 
 
 #criar_csv()
-#entrada = "30, olhar filme; pipoca"
+#entrada = input("Uma tarefa: ")
 #tempo, tasks, data_hora = armazenar_input(entrada)
 #dados = [[tempo, task, data_hora] for task in tasks]
 #salvar_no_csv(dados)
