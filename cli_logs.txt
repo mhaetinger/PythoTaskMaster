@@ -1,1 +1,1 @@
-<class 'TypeError'>, unsupported operand type(s) for *: 'UUID' and 'int', <traceback object at 0x0000026CD2E5C940>
+<class 'IndexError'>, list index out of range, <traceback object at 0x00000207136B7540><class 'IndexError'>, list index out of range, <traceback object at 0x000001E3324EF0C0><class 'IndexError'>, list index out of range, <traceback object at 0x000001ACA0A87BC0>

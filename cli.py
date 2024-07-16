@@ -68,12 +68,20 @@ def run_clock_thread(minutos, segundos=60):
     global_clock_thread.start()
 
 
-def split_not_empty(text, splitter=None):
+def splitstrip(text, splitter=None):
     splitted = []
     for _ in text.split(splitter):
         if _.strip() != "":
             splitted.append(_.strip())
     return splitted
+
+
+def splitgl(text, splitter):
+    value = splitstrip(text, splitter)
+    if len(value) == 1:
+        return value[0]
+    else:
+        return value[1]
 
 
 def is_empty(text):
@@ -120,9 +128,19 @@ def generate_id():
     return str(uuid.uuid4())
 
 
+def verificar_e_remover(list, inputted_value, operacao):
+    argsString = splitgl(inputted_value, operacao)
+    args = splitstrip(argsString, ",")
+    reacurring_tasks = [task for task in list for _task in args if task.name == _task]
+    for _ in reacurring_tasks:
+        del list[list.index(_)]
+        print_on_screen(f"Operação em {_.name} concluída!")
+    return list
+
+
 while True:
     inputted_value = readInput()
-    comandos = split_not_empty(inputted_value)
+    comandos = splitstrip(inputted_value)
     input_number = len(comandos)
     if input_number == 0:
         continue
@@ -146,7 +164,7 @@ while True:
             if is_empty(raw_args):
                 print_missing_args(comandos[3])
                 continue
-            task_args = split_not_empty(raw_args, ",")
+            task_args = splitstrip(raw_args, ",")
             if len(task_args) == 0:
                 continue
             # checar se o for em uma lista vazia da exception
@@ -159,23 +177,20 @@ while True:
             continue
     elif comandos[0] == "tasks":
         for index, _ in enumerate(tasks):
-            print_on_screen(f"Tarefa {index + 1} - {_}")
+            print_on_screen(f"Tarefa {index + 1} - {_.name}")
     elif comandos[0] == "check":
-        for _ in split_not_empty(inputted_value, "check")[1].split(","):
-            if _ in tasks:
-                tasks.remove(_)
-                print_on_screen(f"Tarefa {_} concluída!")
+        tasks = verificar_e_remover(tasks, inputted_value, "check")
     elif comandos[0] == "remove":
-        for _ in split_not_empty(inputted_value, "remove")[1].split(","):
+        for _ in splitstrip(inputted_value, "remove")[1].split(","):
             tasks.remove(_)
             print_on_screen(f"Tarefa {_} removida!")
     elif comandos[0] == "uncheck":
-        for _ in split_not_empty(inputted_value, "uncheck")[1].split(","):
+        for _ in splitstrip(inputted_value, "uncheck")[1].split(","):
             if _ in [task["task"] for task in tasks]:
                 tasks.remove(_)
                 print_on_screen("")
     elif comandos[0] == "edit":
-        for _ in split_not_empty(inputted_value, "edit")[1].split(","):
+        for _ in splitstrip(inputted_value, "edit")[1].split(","):
             indice = tasks.index(_)
             valorAntigo = tasks[indice]
             valorNovo = comandos[3]
