@@ -113,6 +113,5 @@ def grafico_pizza_resolvidas():
     
     plt.show()
 
-grafico_pizza_resolvidas()
 
     
