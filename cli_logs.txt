@@ -1,1 +1,1 @@
-<class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x000001ECE2E59D00><class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x0000022CFBC26D80><class 'NameError'>, name 'args' is not defined, <traceback object at 0x00000269E0DBA4C0>
+<class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x000001CBE5683880>

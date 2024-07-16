@@ -137,7 +137,6 @@ def verificar_e_remover(list, inputted_value, operacao):
         print_on_screen(f"Operação em {_.name} concluída!")
     return list
 
-
 while True:
     inputted_value = readInput()
     comandos = splitstrip(inputted_value)
@@ -189,7 +188,7 @@ while True:
         args = splitstrip(argsString, ",")
         for _ in args:
             tasks.append(Task(_))
-        print_on_screen(f"Operação em {_.name} concluída!")
+        print_on_screen(f"Operação em {_} concluída!")
     # edit task1 to task2
     elif comandos[0] == "edit":
         if len(comandos) == 1:
