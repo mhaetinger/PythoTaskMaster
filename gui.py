@@ -158,7 +158,6 @@ class TaskMaster:
             return
 
         self.rodando = False
-        messagebox.showinfo("Pontuação Final", "Sua pontuação final é: 0 pontos")  # Atualize isso conforme necessário
         self.tempoRestante.set(0)
         self.entradaTimer.config(state='normal')
         self.listaTarefas = []
