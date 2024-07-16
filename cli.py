@@ -22,8 +22,6 @@ class Task:
 
 
 def timer_print(minutos, segundos):
-    x = 0
-    y = 0
     for _minutos in reversed(range(0, minutos)):
         global global_minutos
         global_minutos = _minutos + 1
@@ -35,7 +33,8 @@ def timer_print(minutos, segundos):
             yx = curses.getsyx()
             x = yx[1]
             y = yx[0]
-            screen.addstr(0, 0, f"{_minutos}:{_seg}")
+            screen.addstr(1,0,"                             ")
+            screen.addstr(1, 0, f"{_minutos}:{_seg}")
             screen.move(y, x)
             screen.refresh()
             time.sleep(1)
@@ -93,12 +92,14 @@ def readInput():
     global last_x
     global last_y
     screen.refresh()
+    screen.addstr(0, 0, "Digite 'help' para ver comandos")
     screen.addstr(last_x, 0, ">>")
     screen.clrtoeol()
     inputted_value = screen.getstr(last_x, 3).decode("utf-8").strip()
     last_x = last_x + 1
     last_y = 3
     return inputted_value
+
 
 def generate_id():
     return str(uuid.uuid4())
@@ -109,7 +110,7 @@ def verificar_e_remover(list, inputted_value, operacao):
 
 
 last_y = 0
-last_x = 1
+last_x = 2
 timer_id = None
 tasks = []
 should_global_thread_run = False
@@ -120,7 +121,6 @@ screen = curses.initscr()
 curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
-
 while True:
     inputted_value = readInput()
     comandos = splitstrip(inputted_value)
@@ -224,6 +224,18 @@ while True:
             )
             global_clock_thread.start()
             functions.continua_timer(timer_id)
+    elif comandos[0] == "help":
+        print_on_screen("timer {minutos} [+ tasks {nome task1}, {nome task 2}, ...]")
+        print_on_screen("tasks")
+        print_on_screen("check {nome task1}, {nome task2}, ...")
+        print_on_screen("remove {nome task1}, {nome task2}, ...")
+        print_on_screen("uncheck {nome task1}, {nome task2}, ...")
+        print_on_screen("edit {nome task1} to {novo nome task1}")
+        print_on_screen("stop")
+        print_on_screen("pause")
+        print_on_screen("continue")
+        print_on_screen("quit")
+        print_on_screen("\n")
     elif comandos[0] == "quit":
         break
     else:
