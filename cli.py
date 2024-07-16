@@ -242,6 +242,8 @@ while True:
             )
             global_clock_thread.start()
             functions.continua_timer(timer_id)
+    elif comandos[0] == "plot":
+        functions.grafico_pizza_resolvidas()
     elif comandos[0] == "help":
         print_on_screen("timer {minutos} [+ tasks {nome task1}, {nome task 2}, ...]")
         print_on_screen("tasks")
@@ -253,6 +255,7 @@ while True:
         print_on_screen("stop")
         print_on_screen("pause")
         print_on_screen("continue")
+        print_on_screen("plot")
         print_on_screen("quit")
         print_on_screen("\n")
     elif comandos[0] == "quit":
