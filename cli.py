@@ -100,12 +100,6 @@ def readInput():
     last_y = 3
     return inputted_value
 
-
-def show_exception_and_exit(exc_type, exc_value, tb):
-    f = open("cli_logs.txt", "a")
-    f.write(f"{exc_type}, {exc_value}, {tb}")
-
-
 def generate_id():
     return str(uuid.uuid4())
 
@@ -114,7 +108,6 @@ def verificar_e_remover(list, inputted_value, operacao):
     return list
 
 
-sys.excepthook = show_exception_and_exit
 last_y = 0
 last_x = 1
 timer_id = None
