@@ -7,17 +7,18 @@ import uuid
 
 
 def get_all_task_names(items):
-    return [task.name for task in items]
+    return [task.name for task in items if task.enabled == True]
 
 
 def get_all_task_ids(items):
-    return [task.id for task in items]
+    return [task.id for task in items if task.enabled == True]
 
 
 class Task:
     def __init__(self, name):
         self.name = name
         self.id = generate_id()
+        self.enabled = True
 
 
 def timer_print(minutos, segundos):
@@ -100,19 +101,23 @@ def readInput():
     return inputted_value
 
 
-# def handle_resize():
-#    while True:
-#        com = screen.getch()
-#        if com == curses.KEY_RESIZE:
-#            screen.resize()
 def show_exception_and_exit(exc_type, exc_value, tb):
     f = open("cli_logs.txt", "a")
     f.write(f"{exc_type}, {exc_value}, {tb}")
 
 
+def generate_id():
+    return str(uuid.uuid4())
+
+
+def verificar_e_remover(list, inputted_value, operacao):
+    return list
+
+
 sys.excepthook = show_exception_and_exit
 last_y = 0
 last_x = 1
+timer_id = None
 tasks = []
 should_global_thread_run = False
 global_clock_thread = None
@@ -122,20 +127,6 @@ screen = curses.initscr()
 curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
-
-
-def generate_id():
-    return str(uuid.uuid4())
-
-
-def verificar_e_remover(list, inputted_value, operacao):
-    argsString = getlaststr(inputted_value, operacao)
-    args = splitstrip(argsString, ",")
-    reacurring_tasks = [task for task in list for _task in args if task.name == _task]
-    for _ in reacurring_tasks:
-        del list[list.index(_)]
-        print_on_screen(f"Operação em {_.name} concluída!")
-    return list
 
 while True:
     inputted_value = readInput()
@@ -168,28 +159,43 @@ while True:
             # checar se o for em uma lista vazia da exception
             for _ in task_args:
                 tasks.append(Task(_.strip()))
-                functions.salvar_input(get_all_task_names(tasks), tempo, get_all_task_ids(tasks), generate_id())
+                timer_id = generate_id()
+            functions.salvar_input(get_all_task_names(tasks), tempo, get_all_task_ids(tasks), timer_id)
             run_clock_thread(tempo)
         else:
             print_unknown_command(comandos[3])
             continue
     elif comandos[0] == "tasks":
         for index, _ in enumerate(tasks):
-            print_on_screen(f"Tarefa {index + 1} - {_.name}")
+            if _.enabled:
+                print_on_screen(f"Tarefa {index + 1} - {_.name}")
     elif comandos[0] == "check":
-        tasks = verificar_e_remover(tasks, inputted_value, "check")
+        argsString = getlaststr(inputted_value, "check")
+        args = splitstrip(argsString, ",")
+        reacurring_tasks = [task for task in tasks if task.enabled for _task in args if task.name == _task]
+        for _ in reacurring_tasks:
+            tasks[tasks.index(_)].enabled = False
+            functions.concluir_tarefa(_.id, timer_id)
+            print_on_screen(f"{_.name} foi marcada como concluída!")
     elif comandos[0] == "remove":
-        tasks = verificar_e_remover(tasks, inputted_value, "remove")
+        argsString = getlaststr(inputted_value, "remove")
+        args = splitstrip(argsString, ",")
+        reacurring_tasks = [task for task in tasks for _task in args if task.name == _task]
+        for _ in reacurring_tasks:
+            del tasks[tasks.index(_)]
+            functions.remover_tarefa(_.id, timer_id)
+            print_on_screen(f"{_.name} foi removido!")
     elif comandos[0] == "uncheck":
         if len(comandos) == 1:
             print_missing_args(comandos[0])
             continue
         argsString = getlaststr(inputted_value, "uncheck")
         args = splitstrip(argsString, ",")
-        for _ in args:
-            tasks.append(Task(_))
-        print_on_screen(f"Operação em {_} concluída!")
-    # edit task1 to task2
+        reacurring_tasks = [task for task in tasks if task.enabled == False for _task in args if task.name == _task]
+        for _ in reacurring_tasks:
+            functions.desconcluir_tarefa(_.id, timer_id)
+            tasks[tasks.index(_)].enabled = True
+        print_on_screen(f"Operação em {_.name} concluída!")
     elif comandos[0] == "edit":
         if len(comandos) == 1:
             print_missing_args(comandos[0])
@@ -198,21 +204,24 @@ while True:
         args = splitstrip(argsString, " to ")
         arg1 = args[0]
         arg2 = args[1]
-        reacurring_tasks = [task for task in tasks if task.name == arg1]
-        if len(reacurring_tasks)==0:
+        reacurring_tasks = [task for task in tasks if task.name == arg1 and task.enabled == True]
+        if len(reacurring_tasks) == 0:
             print_missing_args("to")
             continue
         for _ in reacurring_tasks:
             indice = tasks.index(_)
-            valorAntigo = tasks[indice]
+            valorAntigo = tasks[indice].name
             valorNovo = arg2
             tasks[indice].name = valorNovo
-            print_on_screen(f"Tarefa {valorAntigo.name} agora é {valorNovo}!")
+            functions.editar_tarefa(_.id, timer_id, arg2)
+            print_on_screen(f"Tarefa {valorAntigo} agora é {valorNovo}!")
     elif comandos[0] == "stop":
         should_global_thread_run = False
         global_clock_thread = None
+        functions.concluir_timer(timer_id)
     elif comandos[0] == "pause":
         should_global_thread_run = False
+        functions.pausa_timer(timer_id)
     elif comandos[0] == "continue":
         if global_clock_thread is not None:
             should_global_thread_run = True
@@ -220,6 +229,7 @@ while True:
                 global_minutos, global_segundos
             )
             global_clock_thread.start()
+            functions.continua_timer(timer_id)
     elif comandos[0] == "quit":
         break
     else:
