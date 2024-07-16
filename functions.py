@@ -10,7 +10,7 @@ def salvar_input(tasks, tempo, id, timerID):
         'Task': tasks,
         'Tempo': [tempo] * len(tasks),
         'ID': id,
-        'timerID': timerID * len(tasks),
+        'timerID': [timerID] * len(tasks),
         'DataHora': [data_hora] * len(tasks),
         'Check': [False] * len(tasks)
     })
@@ -60,19 +60,11 @@ def continua_timer(timerID):
     df.loc[df['timerID'] == timerID, 'DataHoraContinuacao'] = data_hora_continuacao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-#editar_tarefa(2, "Nova Tarefa 23")
-#listar_tarefas()
-#desconcluir_tarefa('Tarefa 2', 2)
-tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
-tempo = 15
-id = [12, 10, 11]
-timerID = 2
-salvar_input(tasks, tempo, id, timerID)
-
-listar_tarefas()
-#concluir_tarefa('Tarefa 2', 2)
-#remover_tarefa('Tarefa 1', 1)
-
+def concluir_timer(timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    data_hora_conclusao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df.loc[df['timerID'] == timerID, 'DataHoraConclusao'] = data_hora_conclusao
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def carregar_dados_csv(filename='dados_tarefas.csv'):
     df = pd.read_csv(filename)
