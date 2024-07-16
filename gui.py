@@ -2,9 +2,7 @@ import tkinter as tk
 import tkinter.font as tkFont
 import uuid
 from tkinter import ttk, messagebox, simpledialog, Frame, colorchooser
-
 import functions
-
 
 class TaskMaster:
 
@@ -84,7 +82,7 @@ class TaskMaster:
             frame = Frame(self.listaTarefasFrame, bg='#1e3743')
             frame.pack(fill=tk.X, padx=10, pady=2)
 
-            chk = ttk.Checkbutton(frame, variable=lista, style="Custom.TCheckbutton")
+            chk = ttk.Checkbutton(frame, variable=lista, style="Custom.TCheckbutton", command=lambda idx=i: self.alternarTarefa(idx))
             chk.pack(side=tk.LEFT)
 
             camadaTarefas = tk.Label(frame, text=tarefa, font=self.fonteBotoes, bg='#1e3743', fg=cor, anchor='w')
@@ -103,7 +101,10 @@ class TaskMaster:
             id = str(uuid.uuid4())
             timerID = str(uuid.uuid4())
             self.listaTarefas.append((tarefa, var, cor, id, timerID))
-            functions.salvar_input([tarefa], 0, [id], timerID)
+            try:
+                functions.salvar_input([tarefa], 0, [id], timerID)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao salvar tarefa: {e}")
             self.atualizarListaTarefas()
 
     def editTarefa(self):
@@ -112,7 +113,10 @@ class TaskMaster:
             textoNovaTarefa = simpledialog.askstring("Editar Tarefa", "Edite a tarefa:", initialvalue=textoTarefaSelecionada)
             if textoNovaTarefa:
                 self.listaTarefas[self.tarefaSelecionada] = (textoNovaTarefa, var, cor, id, timerID)
-                functions.editar_tarefa(id, timerID, textoNovaTarefa)
+                try:
+                    functions.editar_tarefa(id, timerID, textoNovaTarefa)
+                except Exception as e:
+                    messagebox.showerror("Erro", f"Erro ao editar tarefa: {e}")
                 self.atualizarListaTarefas()
         else:
             messagebox.showerror("Erro", "Por favor, selecione uma tarefa para editar.")
@@ -121,7 +125,10 @@ class TaskMaster:
         if self.tarefaSelecionada is not None:
             _, _, _, id, timerID = self.listaTarefas[self.tarefaSelecionada]
             del self.listaTarefas[self.tarefaSelecionada]
-            functions.remover_tarefa(id, timerID)
+            try:
+                functions.remover_tarefa(id, timerID)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao remover tarefa: {e}")
             self.atualizarListaTarefas()
             self.tarefaSelecionada = None
         else:
@@ -141,6 +148,16 @@ class TaskMaster:
                 lbl.config(bg='#3b5998')
             else:
                 lbl.config(bg='#1e3743')
+
+    def alternarTarefa(self, indice):
+        _, var, _, id, timerID = self.listaTarefas[indice]
+        try:
+            if var.get():
+                functions.concluir_tarefa(id, timerID)
+            else:
+                functions.desconcluir_tarefa(id, timerID)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao alternar tarefa: {e}")
 
     def definirCor(self):
         if self.tarefaSelecionada is not None:
@@ -196,6 +213,9 @@ class TaskMaster:
         self.botaoFinalizar = tk.Button(self.frameTimer, text="Finalizar", command=self.finalizarCronometro, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=20, pady=10)
         self.botaoFinalizar.place(relx=0.8, rely=0.85, anchor='center', relheight=0.15, relwidth=0.2)
 
+        self.botaoRelatorio = tk.Button(self.frameTimer, text="Relatório", command=self.gerarRelatorio, font=self.fonteBotoes, bg='#3b5998', fg='white', padx=20, pady=10)
+        self.botaoRelatorio.place(relx=0.9, rely=0.08, anchor='center', relheight=0.15, relwidth=0.2)
+
     def comecarTimer(self):
         if not self.rodando:
             iniciarTimer = self.entradaTimer.get()
@@ -226,11 +246,17 @@ class TaskMaster:
         if self.rodando:
             self.rodando = False
             self.botaoPausar.config(text="Continuar")
-            functions.pausa_timer(self.tarefaSelecionada)
+            try:
+                functions.pausa_timer(self.listaTarefas[self.tarefaSelecionada][4])
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao pausar o cronômetro: {e}")
         else:
             self.rodando = True
             self.botaoPausar.config(text="Pausar")
-            functions.continua_timer(self.tarefaSelecionada)
+            try:
+                functions.continua_timer(self.listaTarefas[self.tarefaSelecionada][4])
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao continuar o cronômetro: {e}")
             self.atualizarTimer()
 
     def atualizarTimer(self):
@@ -253,5 +279,11 @@ class TaskMaster:
         formatoTimer = f"{minutos:02}:{segundos:02}"
         self.entradaTimer.delete(0, tk.END)
         self.entradaTimer.insert(0, formatoTimer)
+
+    def gerarRelatorio(self):
+        try:
+            functions.grafico_pizza_resolvidas()
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao gerar relatório: {e}")
 
 TaskMaster()
