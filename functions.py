@@ -1,66 +1,115 @@
+import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
+NOME_DO_ARQUIVO = 'tarefas.csv'
 
-def criar_arquivo_csv(nome_arquivo, tarefas, tempos):
-    # Cria um DataFrame
-    df = pd.DataFrame({'Tarefa': tarefas, 'Tempo': tempos})
+def salvar_input(tasks, tempo, id, timerID):
+    data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # Salva o DataFrame em um arquivo CSV
-    df.to_csv(nome_arquivo, index=False)
-    print(f"Arquivo {nome_arquivo} criado com sucesso.")
-
-
-def ler_arquivo_csv(nome_arquivo):
+    df_novo = pd.DataFrame({
+        'Task': tasks,
+        'Tempo': [tempo] * len(tasks),
+        'ID': id,
+        'timerID': [str(timerID)] * len(tasks),
+        'DataHora': [data_hora] * len(tasks),
+        'Check': [False] * len(tasks),
+        'Pontuacao': [0] * len(tasks)
+    })
+    
     try:
-        df = pd.read_csv(nome_arquivo)
-
-        print(df)
-        return df
+        df = pd.read_csv(NOME_DO_ARQUIVO)
+        df = pd.concat([df, df_novo], ignore_index=True)
     except FileNotFoundError:
-        print(f"Arquivo {nome_arquivo} não encontrado.")
-        return None
+        df = df_novo
+    
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def concluir_tarefa(id, timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Check'] = True
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+    atualizar_pontuacao(id, timerID)
+
+def remover_tarefa(id, timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df = df[~((df['ID'] == str(id)) & (df['timerID'] == str(timerID)))]
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def desconcluir_tarefa(id, timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Check'] = False
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+    atualizar_pontuacao(id, timerID)
+
+def listar_tarefas():
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    print(df.to_string(index=False))
+
+def editar_tarefa(id, timerID, nova_tarefa):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    if str(id) in df['ID'].values and str(timerID) in df['timerID'].values:
+        df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Task'] = nova_tarefa
+        df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def pausa_timer(timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    data_hora_pausa = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df.loc[df['timerID'] == str(timerID), 'DataHoraPausa'] = data_hora_pausa
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def continua_timer(timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    data_hora_continuacao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df.loc[df['timerID'] == str(timerID), 'DataHoraContinuacao'] = data_hora_continuacao
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def concluir_timer(timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    data_hora_conclusao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df.loc[df['timerID'] == str(timerID), 'DataHoraConclusao'] = data_hora_conclusao
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def atualizar_pontuacao(id, timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    for index, row in df.iterrows():
+        if row['ID'] == str(id) and row['timerID'] == str(timerID):
+            if row['Check']:
+                df.at[index, 'Pontuacao'] += 1  # Adiciona 1 ponto se a tarefa estiver concluída
+            else:
+                df.at[index, 'Pontuacao'] = 0
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 
-def criar_grafico(df):
-    # convertendo a coluna 'Tempo' para valores numéricos
-    df['Tempo'] = pd.to_numeric(df['Tempo'])
+#tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
+#tempo = 15
+#timerID = '2'
+#id = ['1', '2', '3']
+#salvar_input(tasks, tempo, id, timerID)
+#desconcluir_tarefa('1', '2')
 
-    plt.figure(figsize=(10, 6))
-    plt.bar(df['Tarefa'], df['Tempo'], color='blue')
+def carregar_dados_csv(filename='dados_tarefas.csv'):
+    df = pd.read_csv(filename)
+    df['DataHora'] = pd.to_datetime(df['DataHora'])  
+    if 'HorarioModificacao' in df.columns:
+        df['HorarioModificacao'] = pd.to_datetime(df['HorarioModificacao'])  
+    return df
 
-    plt.title('Tempo por Tarefa')
-    plt.xlabel('Tarefa')
-    plt.ylabel('Tempo (minutos)')
+def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
+    df = carregar_dados_csv(filename)
+    if df is not None and not df.empty:
+        df['DataHora'] = pd.to_datetime(df['DataHora'])
+        df['Dia'] = df['DataHora'].dt.date
+        tempo_por_dia = df.groupby('Dia')['Tempo'].sum()
 
-    plt.show()
-
-
-def main():
-    # Solicita os dados do usuário
-    tarefas = []
-    tempos = []
-
-    for i in range(2):
-        tarefa = input(f"Digite a tarefa {i + 1}: ")
-        tempo = input(f"Digite o tempo para a tarefa {i + 1} (em minutos): ")
-
-        tarefas.append(tarefa)
-        tempos.append(tempo)
-
-    # nome do arquivo CSV
-    nome_arquivo = "tarefas.csv"
-
-    # cria o arquivo CSV
-    criar_arquivo_csv(nome_arquivo, tarefas, tempos)
-
-    # le o arquivo CSV
-    df = ler_arquivo_csv(nome_arquivo)
-
-    # cria o gráfico
-    if df is not None:
-        criar_grafico(df)
-
-
-# Executa a função main
-main()
+        plt.figure(figsize=(10, 6))
+        plt.plot(tempo_por_dia.index, tempo_por_dia.values, marker='o', linestyle='-')
+        plt.xlabel('Dia')
+        plt.ylabel('Tempo Trabalhado (minutos)')
+        plt.title('Tempo Trabalhado ao Longo dos Dias')
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+    else:
+        print("Nenhum dado encontrado para plotar.")
