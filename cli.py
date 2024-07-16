@@ -242,6 +242,7 @@ while True:
         pontuacao = functions.somar_pontos_por_timerID(timer_id)
         print_on_screen(f"Sua pontuação final foi: {pontuacao}!")
         limpar_timer()
+        timer_id = None
     elif comandos[0] == "pause":
         should_global_thread_run = False
         functions.pausa_timer(timer_id)

@@ -7,6 +7,7 @@ import functions
 class TaskMaster:
 
     def __init__(self):
+        self.timer_id = None
         self.root = tk.Tk()
         self.listaTarefas = []
         self.tarefaSelecionada = None
@@ -99,10 +100,11 @@ class TaskMaster:
             var = tk.IntVar()
             cor = 'white'
             id = str(uuid.uuid4())
-            timerID = str(uuid.uuid4())
-            self.listaTarefas.append((tarefa, var, cor, id, timerID))
+            if self.timer_id is None:
+                self.timer_id = str(uuid.uuid4())
+            self.listaTarefas.append((tarefa, var, cor, id, self.timer_id))
             try:
-                functions.salvar_input([tarefa], 0, [id], timerID)
+                functions.salvar_input([tarefa], 0, [id], self.timer_id)
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao salvar tarefa: {e}")
             self.atualizarListaTarefas()
@@ -180,6 +182,8 @@ class TaskMaster:
         self.listaTarefas = []
         self.atualizarListaTarefas()
         self.limpar()
+        messagebox.showinfo("Pontuação", f"Sua pontuação final foi: {int(functions.somar_pontos_por_timerID(self.timer_id))} Pts.")
+        self.timer_id = None
 
     def limpar(self):
         self.rodando = False
