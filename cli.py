@@ -33,7 +33,7 @@ def timer_print(minutos, segundos):
             yx = curses.getsyx()
             x = yx[1]
             y = yx[0]
-            screen.addstr(1,0,"                             ")
+            screen.addstr(1, 0, "                             ")
             screen.addstr(1, 0, f"{_minutos}:{_seg}")
             screen.move(y, x)
             screen.refresh()
@@ -133,6 +133,9 @@ while True:
             continue
         tempo = int(comandos[1])
         if input_number == 2:
+            if should_global_thread_run is True and global_clock_thread is not None:
+                print_on_screen("Cancele o timer atual e tente novamente!")
+                continue
             run_clock_thread(tempo)
             continue
         if comandos[2] != "+":
@@ -143,13 +146,15 @@ while True:
             continue
         if comandos[3] == "tasks":
             raw_args = getlaststr(inputted_value, "tasks")
-            if is_empty(raw_args):
+            if len(comandos[3:]) == 1:
                 print_missing_args(comandos[3])
                 continue
             task_args = splitstrip(raw_args, ",")
             if len(task_args) == 0:
                 continue
-            # checar se o for em uma lista vazia da exception
+            if should_global_thread_run is True and global_clock_thread is not None:
+                print_on_screen("Cancele o timer atual e tente novamente!")
+                continue
             tasks.clear()
             for _ in task_args:
                 tasks.append(Task(_.strip()))
