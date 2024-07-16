@@ -32,6 +32,12 @@ def desconcluir_tarefa(tarefa, timerID):
     df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
     df.to_csv(nome_arquivo, index=False)
 
+def listar_tarefas():
+    nome_arquivo = 'tarefas.csv'
+    df = pd.read_csv(nome_arquivo)
+    print(df.to_string(index=False)) 
+
+#listar_tarefas()
 #desconcluir_tarefa('Tarefa 2', 2)
 #tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
 #tempo = 15
