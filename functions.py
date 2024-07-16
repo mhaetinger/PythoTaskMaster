@@ -15,19 +15,22 @@ def salvar_input(tasks, tempo, id):
     })
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def concluir_tarefa(tarefa, timerID):
+def concluir_tarefa(id):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = True
+    df.loc[(df['ID'] == id), 'Check'] = True
+    #df.loc[(df['Task'] == tarefa) & (df['ID'] == id), 'Check'] = True
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def remover_tarefa(tarefa, id):
+def remover_tarefa(id):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df = df[~((df['Task'] == tarefa) & (df['ID'] == id))]
+    df = df[~((df['ID'] == id))]
+    #df = df[~((df['Task'] == tarefa) & (df['ID'] == id))]
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def desconcluir_tarefa(tarefa, timerID):
+def desconcluir_tarefa(id):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
+    df.loc[(df['ID'] == id), 'Check'] = False
+    #df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def listar_tarefas():
@@ -89,3 +92,6 @@ def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
         plt.show()
     else:
         print("Nenhum dado encontrado para plotar.")
+
+
+
