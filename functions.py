@@ -2,6 +2,8 @@ import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
+NOME_DO_ARQUIVO = 'tarefas.csv'
+
 def salvar_input(tasks, tempo, id):
     data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     df = pd.DataFrame({
@@ -11,31 +13,32 @@ def salvar_input(tasks, tempo, id):
         'DataHora': [data_hora] * len(tasks),
         'Check': [False] * len(tasks)
     })
-    nome_arquivo = 'tarefas.csv'
-    df.to_csv(nome_arquivo, index=False)
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def concluir_tarefa(tarefa, timerID):
-    nome_arquivo = 'tarefas.csv'
-    df = pd.read_csv(nome_arquivo)
+    df = pd.read_csv(NOME_DO_ARQUIVO)
     df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = True
-    df.to_csv(nome_arquivo, index=False)
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def remover_tarefa(tarefa, id):
-    nome_arquivo = 'tarefas.csv'
-    df = pd.read_csv(nome_arquivo)
+    df = pd.read_csv(NOME_DO_ARQUIVO)
     df = df[~((df['Task'] == tarefa) & (df['ID'] == id))]
-    df.to_csv(nome_arquivo, index=False)
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def desconcluir_tarefa(tarefa, timerID):
-    nome_arquivo = 'tarefas.csv'
-    df = pd.read_csv(nome_arquivo)
+    df = pd.read_csv(NOME_DO_ARQUIVO)
     df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
-    df.to_csv(nome_arquivo, index=False)
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def listar_tarefas():
-    nome_arquivo = 'tarefas.csv'
-    df = pd.read_csv(nome_arquivo)
+    df = pd.read_csv(NOME_DO_ARQUIVO)
     print(df.to_string(index=False)) 
+
+def editar_tarefa(id_tarefa, nova_tarefa):
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    if id_tarefa in df['ID'].values:
+        df.loc[df['ID'] == id_tarefa, 'Task'] = nova_tarefa
+        df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 #listar_tarefas()
 #desconcluir_tarefa('Tarefa 2', 2)
