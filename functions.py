@@ -6,10 +6,11 @@ NOME_DO_ARQUIVO = 'tarefas.csv'
 
 def salvar_input(tasks, tempo, id, timerID):
     data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     df_novo = pd.DataFrame({
         'Task': tasks,
         'Tempo': [tempo] * len(tasks),
-        'ID': [str(id)] * len(tasks),
+        'ID': id,
         'timerID': [str(timerID)] * len(tasks),
         'DataHora': [data_hora] * len(tasks),
         'Check': [False] * len(tasks),
@@ -25,55 +26,67 @@ def salvar_input(tasks, tempo, id, timerID):
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def concluir_tarefa(id, timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Check'] = True
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Check'] = True
     df.to_csv(NOME_DO_ARQUIVO, index=False)
+    atualizar_pontuacao(id, timerID)
 
 def remover_tarefa(id, timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
-    df = df[~((df['ID'] == id) & (df['timerID'] == timerID))]
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df = df[~((df['ID'] == str(id)) & (df['timerID'] == str(timerID)))]
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def desconcluir_tarefa(id, timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Check'] = False
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Check'] = False
     df.to_csv(NOME_DO_ARQUIVO, index=False)
+    atualizar_pontuacao(id, timerID)
 
 def listar_tarefas():
-    df = pd.read_csv(NOME_DO_ARQUIVO)
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     print(df.to_string(index=False))
 
 def editar_tarefa(id, timerID, nova_tarefa):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
-    if id in df['ID'].values and timerID in df['timerID'].values:
-        df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Task'] = nova_tarefa
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    if str(id) in df['ID'].values and str(timerID) in df['timerID'].values:
+        df.loc[(df['ID'] == str(id)) & (df['timerID'] == str(timerID)), 'Task'] = nova_tarefa
         df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def pausa_timer(timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     data_hora_pausa = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df.loc[df['timerID'] == timerID, 'DataHoraPausa'] = data_hora_pausa
+    df.loc[df['timerID'] == str(timerID), 'DataHoraPausa'] = data_hora_pausa
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def continua_timer(timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     data_hora_continuacao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df.loc[df['timerID'] == timerID, 'DataHoraContinuacao'] = data_hora_continuacao
+    df.loc[df['timerID'] == str(timerID), 'DataHoraContinuacao'] = data_hora_continuacao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def concluir_timer(timerID):
-    df = pd.read_csv(NOME_DO_ARQUIVO)
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     data_hora_conclusao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df.loc[df['timerID'] == timerID, 'DataHoraConclusao'] = data_hora_conclusao
+    df.loc[df['timerID'] == str(timerID), 'DataHoraConclusao'] = data_hora_conclusao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def atualizar_pontuacao(id, timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
+    for index, row in df.iterrows():
+        if row['ID'] == str(id) and row['timerID'] == str(timerID):
+            if row['Check']:
+                df.at[index, 'Pontuacao'] += 1  # Adiciona 1 ponto se a tarefa estiver concluída
+            else:
+                df.at[index, 'Pontuacao'] = 0
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
 
 #tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
 #tempo = 15
-#id = [12, 10, 11]
-#timerID = 2
+#timerID = '2'
+#id = ['1', '2', '3']
 #salvar_input(tasks, tempo, id, timerID)
-#concluir_timer(timerID)
-#listar_tarefas()
+#desconcluir_tarefa('1', '2')
 
 def carregar_dados_csv(filename='dados_tarefas.csv'):
     df = pd.read_csv(filename)
@@ -100,6 +113,3 @@ def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
         plt.show()
     else:
         print("Nenhum dado encontrado para plotar.")
-
-
-
