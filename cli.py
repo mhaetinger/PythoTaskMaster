@@ -88,6 +88,14 @@ def is_empty(text):
     return text.strip() == ""
 
 
+def generate_id():
+    return str(uuid.uuid4())
+
+
+def verificar_e_remover(list, inputted_value, operacao):
+    return list
+
+
 def readInput():
     global last_x
     global last_y
@@ -99,14 +107,6 @@ def readInput():
     last_x = last_x + 1
     last_y = 3
     return inputted_value
-
-
-def generate_id():
-    return str(uuid.uuid4())
-
-
-def verificar_e_remover(list, inputted_value, operacao):
-    return list
 
 
 last_y = 0
@@ -214,6 +214,19 @@ while True:
             tasks[indice].name = valorNovo
             functions.editar_tarefa(_.id, timer_id, arg2)
             print_on_screen(f"Tarefa {valorAntigo} agora é {valorNovo}!")
+    elif comandos[0] == "add":
+        if len(comandos) == 1:
+            print_missing_args(comandos[0])
+            continue
+        args = getlaststr(inputted_value, "add")
+        task_args = splitstrip(args, ",")
+        if should_global_thread_run is False and global_clock_thread is None:
+            print_on_screen("Inicie um timer e tente novamente!!")
+            continue
+        new_tasks = [Task(_) for _ in task_args]
+        for _ in new_tasks:
+            tasks.append(_)
+        functions.salvar_input(get_all_task_names(new_tasks), 0, get_all_task_ids(new_tasks), timer_id)
     elif comandos[0] == "stop":
         should_global_thread_run = False
         global_clock_thread = None
@@ -235,6 +248,7 @@ while True:
         print_on_screen("check {nome task1}, {nome task2}, ...")
         print_on_screen("remove {nome task1}, {nome task2}, ...")
         print_on_screen("uncheck {nome task1}, {nome task2}, ...")
+        print_on_screen("add {nome task1}, {nome task2}, ...")
         print_on_screen("edit {nome task1} to {novo nome task1}")
         print_on_screen("stop")
         print_on_screen("pause")
