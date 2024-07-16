@@ -6,9 +6,16 @@ import functions
 import uuid
 
 
+def limpar_timer():
+    yx = curses.getsyx()
+    x = yx[1]
+    y = yx[0]
+    screen.addstr(1, 0, "                             ")
+    screen.move(y, x)
+    screen.refresh()
+
 def get_all_task_names(items):
     return [task.name for task in items if task.enabled == True]
-
 
 def get_all_task_ids(items):
     return [task.id for task in items if task.enabled == True]
@@ -121,6 +128,7 @@ screen = curses.initscr()
 curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
+
 while True:
     inputted_value = readInput()
     comandos = splitstrip(inputted_value)
@@ -231,6 +239,9 @@ while True:
         should_global_thread_run = False
         global_clock_thread = None
         functions.concluir_timer(timer_id)
+        pontuacao = functions.somar_pontos_por_timerID(timer_id)
+        print_on_screen(f"Sua pontuação final foi: {pontuacao}!")
+        limpar_timer()
     elif comandos[0] == "pause":
         should_global_thread_run = False
         functions.pausa_timer(timer_id)
