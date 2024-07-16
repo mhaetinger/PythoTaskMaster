@@ -1,1 +1,1 @@
-<class 'IndexError'>, list index out of range, <traceback object at 0x00000207136B7540><class 'IndexError'>, list index out of range, <traceback object at 0x000001E3324EF0C0><class 'IndexError'>, list index out of range, <traceback object at 0x000001ACA0A87BC0>
+<class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x000001ECE2E59D00><class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x0000022CFBC26D80><class 'NameError'>, name 'args' is not defined, <traceback object at 0x00000269E0DBA4C0>

@@ -76,7 +76,7 @@ def splitstrip(text, splitter=None):
     return splitted
 
 
-def splitgl(text, splitter):
+def getlaststr(text, splitter):
     value = splitstrip(text, splitter)
     if len(value) == 1:
         return value[0]
@@ -129,7 +129,7 @@ def generate_id():
 
 
 def verificar_e_remover(list, inputted_value, operacao):
-    argsString = splitgl(inputted_value, operacao)
+    argsString = getlaststr(inputted_value, operacao)
     args = splitstrip(argsString, ",")
     reacurring_tasks = [task for task in list for _task in args if task.name == _task]
     for _ in reacurring_tasks:
@@ -148,7 +148,6 @@ while True:
         if input_number == 1:
             print_missing_args(comandos[0])
             continue
-        # testar se não precisa de um try catch aqui
         tempo = int(comandos[1])
         if input_number == 2:
             run_clock_thread(tempo)
@@ -160,7 +159,7 @@ while True:
             print_missing_args(comandos[2])
             continue
         if comandos[3] == "tasks":
-            raw_args = inputted_value.split("tasks")[1]
+            raw_args = getlaststr(inputted_value, "tasks")
             if is_empty(raw_args):
                 print_missing_args(comandos[3])
                 continue
@@ -181,22 +180,35 @@ while True:
     elif comandos[0] == "check":
         tasks = verificar_e_remover(tasks, inputted_value, "check")
     elif comandos[0] == "remove":
-        for _ in splitstrip(inputted_value, "remove")[1].split(","):
-            tasks.remove(_)
-            print_on_screen(f"Tarefa {_} removida!")
+        tasks = verificar_e_remover(tasks, inputted_value, "remove")
     elif comandos[0] == "uncheck":
-        for _ in splitstrip(inputted_value, "uncheck")[1].split(","):
-            if _ in [task["task"] for task in tasks]:
-                tasks.remove(_)
-                print_on_screen("")
+        if len(comandos) == 1:
+            print_missing_args(comandos[0])
+            continue
+        argsString = getlaststr(inputted_value, "uncheck")
+        args = splitstrip(argsString, ",")
+        for _ in args:
+            tasks.append(Task(_))
+        print_on_screen(f"Operação em {_.name} concluída!")
+    # edit task1 to task2
     elif comandos[0] == "edit":
-        for _ in splitstrip(inputted_value, "edit")[1].split(","):
+        if len(comandos) == 1:
+            print_missing_args(comandos[0])
+            continue
+        argsString = getlaststr(inputted_value, "edit")
+        args = splitstrip(argsString, " to ")
+        arg1 = args[0]
+        arg2 = args[1]
+        reacurring_tasks = [task for task in tasks if task.name == arg1]
+        if len(reacurring_tasks)==0:
+            print_missing_args("to")
+            continue
+        for _ in reacurring_tasks:
             indice = tasks.index(_)
             valorAntigo = tasks[indice]
-            valorNovo = comandos[3]
-            tasks[indice] = valorNovo
-            screen.addstr(last_x, 0, f"Tarefa {valorAntigo} agora é {valorNovo}!")
-            last_x = last_x + 1
+            valorNovo = arg2
+            tasks[indice].name = valorNovo
+            print_on_screen(f"Tarefa {valorAntigo.name} agora é {valorNovo}!")
     elif comandos[0] == "stop":
         should_global_thread_run = False
         global_clock_thread = None
