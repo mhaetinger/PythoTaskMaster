@@ -1,6 +1,24 @@
 import curses
+import sys
 import threading
 import time
+import functions
+import uuid
+
+
+def get_all_task_names(items):
+    return [task.name for task in items]
+
+
+def get_all_task_ids(items):
+    return [task.id for task in items]
+
+
+class Task:
+    def __init__(self, name):
+        self.name = name
+        self.id = generate_id()
+
 
 def timer_print(minutos, segundos):
     x = 0
@@ -61,6 +79,7 @@ def split_not_empty(text, splitter=None):
 def is_empty(text):
     return text.strip() == ""
 
+
 def readInput():
     global last_x
     global last_y
@@ -78,7 +97,12 @@ def readInput():
 #        com = screen.getch()
 #        if com == curses.KEY_RESIZE:
 #            screen.resize()
+def show_exception_and_exit(exc_type, exc_value, tb):
+    f = open("cli_logs.txt", "a")
+    f.write(f"{exc_type}, {exc_value}, {tb}")
 
+
+sys.excepthook = show_exception_and_exit
 last_y = 0
 last_x = 1
 tasks = []
@@ -90,6 +114,12 @@ screen = curses.initscr()
 curses.curs_set(1)
 screen.keypad(True)
 screen.clear()
+
+
+def generate_id():
+    return str(uuid.uuid4())
+
+
 while True:
     inputted_value = readInput()
     comandos = split_not_empty(inputted_value)
@@ -121,32 +151,31 @@ while True:
                 continue
             # checar se o for em uma lista vazia da exception
             for _ in task_args:
-                tasks.append(_.strip())
+                tasks.append(Task(_.strip()))
+                functions.salvar_input(get_all_task_names(tasks), tempo, get_all_task_ids(tasks), generate_id())
             run_clock_thread(tempo)
         else:
             print_unknown_command(comandos[3])
             continue
     elif comandos[0] == "tasks":
         for index, _ in enumerate(tasks):
-            screen.addstr(last_x, 0, f"Tarefa {index + 1} - {_}")
-            last_x = last_x + 1
+            print_on_screen(f"Tarefa {index + 1} - {_}")
     elif comandos[0] == "check":
-        for _ in comandos[1].split(","):
+        for _ in split_not_empty(inputted_value, "check")[1].split(","):
             if _ in tasks:
                 tasks.remove(_)
-            screen.addstr(last_x, 0, f"Tarefa {_} concluída!")
-            last_x = last_x + 1
+                print_on_screen(f"Tarefa {_} concluída!")
     elif comandos[0] == "remove":
-        for _ in comandos[1].split(","):
+        for _ in split_not_empty(inputted_value, "remove")[1].split(","):
             tasks.remove(_)
-            screen.addstr(last_x, 0, f"Tarefa {_} removida!")
-            last_x = last_x + 1
+            print_on_screen(f"Tarefa {_} removida!")
     elif comandos[0] == "uncheck":
-        for _ in comandos[1].split(","):
-            tasks.add(_)
-            last_x = last_x + 1
+        for _ in split_not_empty(inputted_value, "uncheck")[1].split(","):
+            if _ in [task["task"] for task in tasks]:
+                tasks.remove(_)
+                print_on_screen("")
     elif comandos[0] == "edit":
-        for _ in comandos[1].split(","):
+        for _ in split_not_empty(inputted_value, "edit")[1].split(","):
             indice = tasks.index(_)
             valorAntigo = tasks[indice]
             valorNovo = comandos[3]

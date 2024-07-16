@@ -1,0 +1,1 @@
+<class 'TypeError'>, unsupported operand type(s) for *: 'UUID' and 'int', <traceback object at 0x0000026CD2E5C940>
