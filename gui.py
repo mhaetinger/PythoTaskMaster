@@ -1,11 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog, Frame, filedialog, colorchooser
 import tkinter.font as tkFont
-import functions
 import uuid
-import datetime
-import pandas as pd
-import matplotlib.pyplot as plt
+from tkinter import ttk, messagebox, simpledialog, Frame, colorchooser
+
+import functions
+
 
 class TaskMaster:
 

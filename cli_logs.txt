@@ -1,1 +1,0 @@
-<class 'AttributeError'>, 'str' object has no attribute 'name', <traceback object at 0x000001CBE5683880>

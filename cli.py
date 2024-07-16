@@ -157,9 +157,10 @@ while True:
             if len(task_args) == 0:
                 continue
             # checar se o for em uma lista vazia da exception
+            tasks.clear()
             for _ in task_args:
                 tasks.append(Task(_.strip()))
-                timer_id = generate_id()
+            timer_id = generate_id()
             functions.salvar_input(get_all_task_names(tasks), tempo, get_all_task_ids(tasks), timer_id)
             run_clock_thread(tempo)
         else:
