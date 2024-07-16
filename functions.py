@@ -45,6 +45,12 @@ def desconcluir_tarefa(id, timerID):
 def listar_tarefas():
     df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     print(df.to_string(index=False))
+    
+def somar_pontos_por_timerID(timerID):
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    df_filtrado = df[df['timerID'] == timerID]
+    soma_pontos = df_filtrado['Pontuacao'].sum()
+    return soma_pontos
 
 def editar_tarefa(id, timerID, nova_tarefa):
     df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
@@ -69,6 +75,10 @@ def concluir_timer(timerID):
     data_hora_conclusao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     df.loc[df['timerID'] == str(timerID), 'DataHoraConclusao'] = data_hora_conclusao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
+    total_pontos = somar_pontos_por_timerID(timerID)
+    #print(f"Total de Pontos: {total_pontos}")
+    return total_pontos
+
 
 def atualizar_pontuacao(id, timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
@@ -80,36 +90,29 @@ def atualizar_pontuacao(id, timerID):
                 df.at[index, 'Pontuacao'] = 0
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-
 #tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
 #tempo = 15
-#timerID = '2'
-#id = ['1', '2', '3']
+#timerID = '3'
+#id = ['4', '5', '6']
 #salvar_input(tasks, tempo, id, timerID)
-#desconcluir_tarefa('1', '2')
+#concluir_tarefa('4', '3')
+#pausa_timer(3)
+def grafico_pizza_resolvidas():
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    tarefas_resolvidas = df[df['Pontuacao'] == 1].shape[0]
+    tarefas_nao_resolvidas = df[df['Pontuacao'] == 0].shape[0]
 
-def carregar_dados_csv(filename='dados_tarefas.csv'):
-    df = pd.read_csv(filename)
-    df['DataHora'] = pd.to_datetime(df['DataHora'])  
-    if 'HorarioModificacao' in df.columns:
-        df['HorarioModificacao'] = pd.to_datetime(df['HorarioModificacao'])  
-    return df
+    labels = ['Resolvidas', 'Não Resolvidas']
+    sizes = [tarefas_resolvidas, tarefas_nao_resolvidas]
+    colors = ['lightgreen', 'lightcoral']
 
-def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
-    df = carregar_dados_csv(filename)
-    if df is not None and not df.empty:
-        df['DataHora'] = pd.to_datetime(df['DataHora'])
-        df['Dia'] = df['DataHora'].dt.date
-        tempo_por_dia = df.groupby('Dia')['Tempo'].sum()
+    plt.figure(figsize=(8, 6))
+    plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=140)
+    plt.title('Tarefas Resolvidas e Não Resolvidas')
+    plt.axis('equal')  
+    
+    plt.show()
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(tempo_por_dia.index, tempo_por_dia.values, marker='o', linestyle='-')
-        plt.xlabel('Dia')
-        plt.ylabel('Tempo Trabalhado (minutos)')
-        plt.title('Tempo Trabalhado ao Longo dos Dias')
-        plt.grid(True)
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.show()
-    else:
-        print("Nenhum dado encontrado para plotar.")
+grafico_pizza_resolvidas()
+
+    
