@@ -67,13 +67,13 @@ def concluir_timer(timerID):
     df.loc[df['timerID'] == timerID, 'DataHoraConclusao'] = data_hora_conclusao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
-tempo = 15
-id = [12, 10, 11]
-timerID = 2
-salvar_input(tasks, tempo, id, timerID)
-concluir_timer(timerID)
-listar_tarefas()
+#tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
+#tempo = 15
+#id = [12, 10, 11]
+#timerID = 2
+#salvar_input(tasks, tempo, id, timerID)
+#concluir_timer(timerID)
+#listar_tarefas()
 
 def carregar_dados_csv(filename='dados_tarefas.csv'):
     df = pd.read_csv(filename)
