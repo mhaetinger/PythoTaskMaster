@@ -2,16 +2,29 @@ import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def salvar_tasks(tasks, tempo, id):
+def salvar_input(tasks, tempo, id):
     data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     df = pd.DataFrame({
         'Task': tasks,
         'Tempo': [tempo] * len(tasks),
         'ID': id,
-        'DataHora': [data_hora] * len(tasks)
+        'DataHora': [data_hora] * len(tasks),
+        'Check': [False] * len(tasks)
     })
     nome_arquivo = 'tarefas.csv'
     df.to_csv(nome_arquivo, index=False)
+
+def concluir_tarefa(tarefa, timerID):
+    nome_arquivo = 'tarefas.csv'
+    df = pd.read_csv(nome_arquivo)
+    df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = True
+    df.to_csv(nome_arquivo, index=False)
+
+#tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
+#tempo = 15
+#id = [1, 2, 3]
+#salvar_input(tasks, tempo, id)
+#concluir_tarefa('Tarefa 2', 2)
 
 def salvar_no_csv(dados, filename='dados_tarefas.csv'):
     df = pd.DataFrame(dados, columns=['Tempo', 'Task', 'DataHora'])
