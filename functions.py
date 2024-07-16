@@ -34,12 +34,26 @@ def listar_tarefas():
     df = pd.read_csv(NOME_DO_ARQUIVO)
     print(df.to_string(index=False)) 
 
-def editar_tarefa(id_tarefa, nova_tarefa):
+def editar_tarefa(id, nova_tarefa):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    if id_tarefa in df['ID'].values:
-        df.loc[df['ID'] == id_tarefa, 'Task'] = nova_tarefa
+    if id in df['ID'].values:
+        df.loc[df['ID'] == id, 'Task'] = nova_tarefa
         df.to_csv(NOME_DO_ARQUIVO, index=False)
 
+def pausa_timer():
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    data_hora_pausa = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df['DataHoraPausa'] = data_hora_pausa
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+def continua_timer():
+    df = pd.read_csv(NOME_DO_ARQUIVO)
+    data_hora_continuacao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    df['data_hora_continuacao'] = data_hora_continuacao
+    df.to_csv(NOME_DO_ARQUIVO, index=False)
+
+
+#editar_tarefa(2, "Nova Tarefa 23")
 #listar_tarefas()
 #desconcluir_tarefa('Tarefa 2', 2)
 #tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
@@ -49,14 +63,6 @@ def editar_tarefa(id_tarefa, nova_tarefa):
 #concluir_tarefa('Tarefa 2', 2)
 #remover_tarefa('Tarefa 1', 1)
 
-def salvar_no_csv(dados, filename='dados_tarefas.csv'):
-    df = pd.DataFrame(dados, columns=['Tempo', 'Task', 'DataHora'])
-    df.to_csv(filename, mode='a', header=False, index=False)
-
-def adiciona_coluna_pausa(filename='dados_tarefas.csv'):
-    df = pd.read_csv(filename)
-    df['HorarioModificacao'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    df.to_csv(filename, index=False)
 
 def carregar_dados_csv(filename='dados_tarefas.csv'):
     df = pd.read_csv(filename)
@@ -64,13 +70,6 @@ def carregar_dados_csv(filename='dados_tarefas.csv'):
     if 'HorarioModificacao' in df.columns:
         df['HorarioModificacao'] = pd.to_datetime(df['HorarioModificacao'])  
     return df
-
-def adicionar_nova_coluna_tempo(novo_tempo, filename='dados_tarefas.csv'):
-    df = carregar_dados_csv(filename)
-    if df is not None and not df.empty:
-        nova_coluna = f'Tempo_{len(df.columns)}'
-        df[nova_coluna] = novo_tempo 
-        df.to_csv(filename, index=False)
 
 def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
     df = carregar_dados_csv(filename)
@@ -90,14 +89,3 @@ def plotar_tempo_trabalhado(filename='dados_tarefas.csv'):
         plt.show()
     else:
         print("Nenhum dado encontrado para plotar.")
-
-
-#criar_csv()
-#entrada = input("Uma tarefa: ")
-#tempo, tasks, data_hora = armazenar_input(entrada)
-#dados = [[tempo, task, data_hora] for task in tasks]
-#salvar_no_csv(dados)
-#adiciona_coluna_pausa()
-#novo_tempo = 55
-#adicionar_nova_coluna_tempo(novo_tempo)
-#plotar_tempo_trabalhado()
