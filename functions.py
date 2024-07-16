@@ -46,7 +46,7 @@ def listar_tarefas():
     df = pd.read_csv(NOME_DO_ARQUIVO, dtype={'ID': str, 'timerID': str})
     print(df.to_string(index=False))
     
-def somar_pontos_por_timerID(timerID):
+def somar_pontos(timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
     df_filtrado = df[df['timerID'] == timerID]
     soma_pontos = df_filtrado['Pontuacao'].sum()
@@ -75,7 +75,7 @@ def concluir_timer(timerID):
     data_hora_conclusao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     df.loc[df['timerID'] == str(timerID), 'DataHoraConclusao'] = data_hora_conclusao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
-    total_pontos = somar_pontos_por_timerID(timerID)
+    total_pontos = somar_pontos(timerID)
     #print(f"Total de Pontos: {total_pontos}")
     return total_pontos
 
