@@ -20,11 +20,25 @@ def concluir_tarefa(tarefa, timerID):
     df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = True
     df.to_csv(nome_arquivo, index=False)
 
+def remover_tarefa(tarefa, id):
+    nome_arquivo = 'tarefas.csv'
+    df = pd.read_csv(nome_arquivo)
+    df = df[~((df['Task'] == tarefa) & (df['ID'] == id))]
+    df.to_csv(nome_arquivo, index=False)
+
+def desconcluir_tarefa(tarefa, timerID):
+    nome_arquivo = 'tarefas.csv'
+    df = pd.read_csv(nome_arquivo)
+    df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
+    df.to_csv(nome_arquivo, index=False)
+
+#desconcluir_tarefa('Tarefa 2', 2)
 #tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
 #tempo = 15
 #id = [1, 2, 3]
 #salvar_input(tasks, tempo, id)
 #concluir_tarefa('Tarefa 2', 2)
+#remover_tarefa('Tarefa 1', 1)
 
 def salvar_no_csv(dados, filename='dados_tarefas.csv'):
     df = pd.DataFrame(dados, columns=['Tempo', 'Task', 'DataHora'])
