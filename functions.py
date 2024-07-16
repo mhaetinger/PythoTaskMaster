@@ -4,65 +4,72 @@ import matplotlib.pyplot as plt
 
 NOME_DO_ARQUIVO = 'tarefas.csv'
 
-def salvar_input(tasks, tempo, id):
+def salvar_input(tasks, tempo, id, timerID):
     data_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df = pd.DataFrame({
+    df_novo = pd.DataFrame({
         'Task': tasks,
         'Tempo': [tempo] * len(tasks),
         'ID': id,
+        'timerID': timerID * len(tasks),
         'DataHora': [data_hora] * len(tasks),
         'Check': [False] * len(tasks)
     })
+    
+    try:
+        df = pd.read_csv(NOME_DO_ARQUIVO)
+        df = pd.concat([df, df_novo], ignore_index=True)
+    except FileNotFoundError:
+        df = df_novo
+    
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def concluir_tarefa(id):
+def concluir_tarefa(id, timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['ID'] == id), 'Check'] = True
-    #df.loc[(df['Task'] == tarefa) & (df['ID'] == id), 'Check'] = True
+    df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Check'] = True
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def remover_tarefa(id):
+def remover_tarefa(id, timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df = df[~((df['ID'] == id))]
-    #df = df[~((df['Task'] == tarefa) & (df['ID'] == id))]
+    df = df[~((df['ID'] == id) & (df['timerID'] == timerID))]
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def desconcluir_tarefa(id):
+def desconcluir_tarefa(id, timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    df.loc[(df['ID'] == id), 'Check'] = False
-    #df.loc[(df['Task'] == tarefa) & (df['ID'] == timerID), 'Check'] = False
+    df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Check'] = False
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
 def listar_tarefas():
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    print(df.to_string(index=False)) 
+    print(df.to_string(index=False))
 
-def editar_tarefa(id, nova_tarefa):
+def editar_tarefa(id, timerID, nova_tarefa):
     df = pd.read_csv(NOME_DO_ARQUIVO)
-    if id in df['ID'].values:
-        df.loc[df['ID'] == id, 'Task'] = nova_tarefa
+    if id in df['ID'].values and timerID in df['timerID'].values:
+        df.loc[(df['ID'] == id) & (df['timerID'] == timerID), 'Task'] = nova_tarefa
         df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def pausa_timer():
+def pausa_timer(timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
     data_hora_pausa = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df['DataHoraPausa'] = data_hora_pausa
+    df.loc[df['timerID'] == timerID, 'DataHoraPausa'] = data_hora_pausa
     df.to_csv(NOME_DO_ARQUIVO, index=False)
 
-def continua_timer():
+def continua_timer(timerID):
     df = pd.read_csv(NOME_DO_ARQUIVO)
     data_hora_continuacao = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    df['data_hora_continuacao'] = data_hora_continuacao
+    df.loc[df['timerID'] == timerID, 'DataHoraContinuacao'] = data_hora_continuacao
     df.to_csv(NOME_DO_ARQUIVO, index=False)
-
 
 #editar_tarefa(2, "Nova Tarefa 23")
 #listar_tarefas()
 #desconcluir_tarefa('Tarefa 2', 2)
-#tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
-#tempo = 15
-#id = [1, 2, 3]
-#salvar_input(tasks, tempo, id)
+tasks = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3']
+tempo = 15
+id = [12, 10, 11]
+timerID = 2
+salvar_input(tasks, tempo, id, timerID)
+
+listar_tarefas()
 #concluir_tarefa('Tarefa 2', 2)
 #remover_tarefa('Tarefa 1', 1)
 
